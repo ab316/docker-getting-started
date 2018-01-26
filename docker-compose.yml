@@ -1,0 +1,18 @@
+version: "3"
+services:
+    rabbit:
+        image: rabbitmq:3-management
+        deploy:
+            restart_policy:
+                condition: on-failure
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+    
+    publisher:
+        build: ./publisher-service
+        image: abaig316/docker-getting-started-publisher-service
+        
+    consumer:
+        build: ./consumer-service
+        image: abaig316/docker-getting-started-consumer-service 
