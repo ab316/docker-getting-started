@@ -1,7 +1,7 @@
 var amqplib = require('amqplib');
 
 class Rabbit {
-    Rabbit() {
+    constructor() {
         this.connection = null;
         this.channel = null;
         this.queueName = 'msg';
@@ -50,6 +50,15 @@ class Rabbit {
                 reject('Not connected');
             }
         })
+    }
+
+    receiveMessages(callback) {
+        this.channel.consume(this.queueName, msg => {
+            if (null != msg) {
+                this.channel.ack(msg);
+                callback(msg.content.toString());
+            }
+        });
     }
 }
 
