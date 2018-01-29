@@ -18,5 +18,7 @@ services:
     consumer:
         build: ./consumer-service
         image: abaig316/docker-getting-started-consumer-service
+        ports:
+            - "3000:3000"
         environment:
             - RABBIT_HOST=amqp://rabbit

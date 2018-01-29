@@ -1,50 +1,29 @@
 var Rabbit = require('./rabbit');
+const RabbitHelper = require('./rabbitHelper');
+const ExitHandler = require('./exitHandler')
+const Express = require('express');
 const rabbit = new Rabbit();
+
+
+const app = Express();
+
+
+function onConnected() {
+    rabbit.receiveMessages(onMessageReceived);
+}
 
 function onMessageReceived(msg) {
     console.log("Message received [%s]", msg);
 }
 
-function connect(connectionString) {
-    console.log('Connecting to [%s]', connectionString);
-    rabbit.connect(connectionString).then(() => {
-        console.log('Connected');
-        rabbit.receiveMessages(onMessageReceived);
-    }).catch(err => {
-        console.log(err);
-        setTimeout(connect, 3000, connectionString);
-    });
-}
 
-let connectionString = '';
-const cmdArg = process.env['RABBIT_HOST'];
-if (null != cmdArg) {
-    connectionString = cmdArg;
-} else {
-    connectionString = 'amqp://localhost';
-}
+ExitHandler.setExitHandler(rabbit.disconnect);
 
-connect(connectionString);
+app.get('/', (request, result) => {
+    result.send('hello world');
+});
+app.listen(3000, () => console.log('Listening on port 3000'));
 
-function exitHandler(options, err) {
-    if (options.cleanup) rabbit.disconnect();
-    if (err) console.log(err.stack);
-    if (options.exit) process.exit();
-}
+RabbitHelper.connectRabbit(rabbit, RabbitHelper.getRabbitHost(), onConnected);
 
 
-process.on('exit', exitHandler.bind(null, {
-    cleanup: true
-}));
-process.on('SIGINT', exitHandler.bind(null, {
-    exit: true
-}));
-process.on('SIGUSR1', exitHandler.bind(null, {
-    exit: true
-}));
-process.on('SIGUSR2', exitHandler.bind(null, {
-    exit: true
-}));
-process.on('uncaughtException', exitHandler.bind(null, {
-    exit: true
-}));
