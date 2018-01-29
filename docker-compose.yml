@@ -12,7 +12,11 @@ services:
     publisher:
         build: ./publisher-service
         image: abaig316/docker-getting-started-publisher-service
+        environment:
+            - RABBIT_HOST=amqp://rabbit
         
     consumer:
         build: ./consumer-service
-        image: abaig316/docker-getting-started-consumer-service 
+        image: abaig316/docker-getting-started-consumer-service
+        environment:
+            - RABBIT_HOST=amqp://rabbit

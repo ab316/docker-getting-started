@@ -13,17 +13,26 @@ function sendRandomMsg() {
     rabbit.sendMessage(msgString);
 }
 
-function connect() {
-    rabbit.connect('amqp://rabbit').then(() => {
+function connect(connectionString) {
+    console.log('Connecting to [%s]', connectionString);
+    rabbit.connect(connectionString).then(() => {
         console.log('Connected');
         setInterval(sendRandomMsg, 3000);
     }).catch(err => {
         console.log(err);
-        setTimeout(connect, 3000);
+        setTimeout(connect, 3000, connectionString);
     });
 }
 
-connect();
+let connectionString = '';
+const cmdArg = process.env['RABBIT_HOST'];
+if (null != cmdArg) {
+    connectionString = cmdArg;
+} else {
+    connectionString = 'amqp://localhost';
+}
+
+connect(connectionString);
 
 function exitHandler(options, err) {
     if (options.cleanup) rabbit.disconnect();
@@ -32,8 +41,18 @@ function exitHandler(options, err) {
 }
 
 
-process.on('exit', exitHandler.bind(null,{cleanup:true}));
-process.on('SIGINT', exitHandler.bind(null, {exit:true}));
-process.on('SIGUSR1', exitHandler.bind(null, {exit:true}));
-process.on('SIGUSR2', exitHandler.bind(null, {exit:true}));
-process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
+process.on('exit', exitHandler.bind(null, {
+    cleanup: true
+}));
+process.on('SIGINT', exitHandler.bind(null, {
+    exit: true
+}));
+process.on('SIGUSR1', exitHandler.bind(null, {
+    exit: true
+}));
+process.on('SIGUSR2', exitHandler.bind(null, {
+    exit: true
+}));
+process.on('uncaughtException', exitHandler.bind(null, {
+    exit: true
+}));
