@@ -1,13 +1,21 @@
-module.exports.connectRabbit = (rabbit, connectionString, connectedCallback) => {
-    console.log('Connecting to [%s]', connectionString);
-    rabbit.connect(connectionString).then(() => {
-        console.log('Connected');
-        connectedCallback();
-    }).catch(err => {
-        console.log(err);
-        setTimeout(module.exports.connectRabbit, 3000, rabbit, connectionString, connectedCallback);
+const Utils = require('./utils');
+
+function connect(rabbit, connectionString) {
+    return new Promise((resolve, reject) => {
+        console.log('Connecting to [%s]', connectionString);
+        rabbit.connect(connectionString).then(() => {
+            console.log('Successfully connected to [%s]', connectionString);
+            resolve();
+        }).catch(err => {
+            console.log('Rabbit connection failure. Retrying in 3 seconds');
+            Utils.delay(3000, rabbit, connectionString).then(() => {
+                connect(rabbit, connectionString).then(() => resolve());
+            });
+        });
     });
 }
+
+module.exports.connectRabbit = connect;
 
 module.exports.getRabbitHost = () => {
     let connectionString = '';
