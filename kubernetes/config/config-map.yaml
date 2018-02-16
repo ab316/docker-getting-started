@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: config-map
+data:
+    POSTGRES_HOST: postgres
+    POSTGRES_DB: postgres
+    RABBIT_HOST: amqp://rabbit

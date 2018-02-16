@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: publisher
+spec:
+    selector:
+        matchLabels:
+            app: publisher
+    template:
+        metadata:
+            labels:
+                app: publisher
+        spec:
+            containers:
+            - name: publisher
+              image: abaig316/docker-getting-started-publisher-service
+              env:
+              - name: RABBIT_HOST
+                valueFrom:
+                    configMapKeyRef:
+                        name: config-map
+                        key: RABBIT_HOST

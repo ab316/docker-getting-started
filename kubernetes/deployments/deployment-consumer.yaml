@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: consumer
+spec:
+    selector:
+        matchLabels:
+            app: consumer
+    replicas: 4
+    template:
+        metadata:
+            labels:
+                app: consumer
+        spec:
+            containers:
+            - name: consumer
+              image: abaig316/docker-getting-started-consumer-service
+              env:
+              - name: RABBIT_HOST
+                valueFrom:
+                    configMapKeyRef:
+                        name: config-map
+                        key: RABBIT_HOST
+                        
+              - name: POSTGRES_HOST
+                valueFrom:
+                    configMapKeyRef:
+                        name: config-map
+                        key: POSTGRES_HOST
+                        
+              - name: POSTGRES_DB
+                valueFrom:
+                    configMapKeyRef:
+                        name: config-map
+                        key: POSTGRES_DB
+                        
+              - name: POSTGRES_USER
+                valueFrom:
+                    secretKeyRef:
+                        name: postgres
+                        key: user
+                        
+              - name: POSTGRES_PASSWORD
+                valueFrom:
+                    secretKeyRef:
+                        name: postgres
+                        key: password
+              ports:
+              - containerPort: 3000
